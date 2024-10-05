@@ -1,0 +1,60 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowListAllMyBuckets",
+            "Effect": "Allow",
+            "Action": "s3:ListAllMyBuckets",
+            "Resource": "*"
+        },
+        {
+            "Sid": "AllowListBucketButInitiallyAllSubfolders",
+            "Effect": "Allow",
+            "Action": "s3:ListBucket",
+            "Resource": "arn:aws:s3:::s3rrmbucket1",
+            "Condition": {
+                "StringEquals": {
+                    "s3:prefix": [
+                        "",
+                        "HR/",
+                        "Financial/"
+                    ],
+                    "s3:delimiter": [
+                        "/"
+                    ]
+                }
+            }
+        },
+        {
+            "Sid": "AllowGroupSpecificS3Access",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::s3rrmbucket1",
+                "arn:aws:s3:::s3rrmbucket1/${aws:PrincipalTag/Department}/*"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "aws:PrincipalTag/Department": [
+                        "Financial",
+                        "HR"
+                    ]
+                },
+                "StringLike": {
+                    "s3:prefix": [
+                        "${aws:PrincipalTag/Department}/*"
+                    ]
+                }
+            }
+        }
+    ]
+}
+
+
+// arn:aws:s3:::s3rrmbucket1 is my s3 bucket name
+// and was create department Financial, HR
